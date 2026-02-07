@@ -1,0 +1,7 @@
+{
+  "name": "Creative AI Engine SaaS",
+  "description": "A comprehensive SaaS platform for generating brand-consistent social media content using Gemini AI for text and image generation, featuring a full Brand Kit management system and post-processing tools.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
