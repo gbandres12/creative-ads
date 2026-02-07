@@ -2,6 +2,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Brand, Platform, GenerationInput, GeneratedAsset } from '../types';
 import { generateContent } from '../geminiService';
+import { supabase } from '../supabaseClient';
 import { 
   Instagram, 
   Twitter, 
@@ -60,6 +61,26 @@ const Generator: React.FC<GeneratorProps> = ({ brands }) => {
     }
   };
 
+  const loadFont = async (brand: Brand): Promise<string> => {
+    if (!brand.fontFileUrl) return brand.fontFamily;
+    
+    const fontName = `BrandFont_${brand.id.replace(/-/g, '')}`;
+    
+    // Verifica se a fonte já está carregada
+    const existingFont = Array.from(document.fonts).find(f => f.family === fontName);
+    if (existingFont) return fontName;
+
+    try {
+      const fontFace = new FontFace(fontName, `url(${brand.fontFileUrl})`);
+      const loadedFace = await fontFace.load();
+      document.fonts.add(loadedFace);
+      return fontName;
+    } catch (err) {
+      console.warn("Falha ao carregar fonte customizada, usando fallback:", err);
+      return brand.fontFamily;
+    }
+  };
+
   useEffect(() => {
     if (result && canvasRef.current && activeBrand) {
       const canvas = canvasRef.current;
@@ -70,22 +91,28 @@ const Generator: React.FC<GeneratorProps> = ({ brands }) => {
       img.crossOrigin = "anonymous";
       img.src = result.imageUrl;
 
-      img.onload = () => {
+      img.onload = async () => {
         canvas.width = img.width;
         canvas.height = img.height;
         ctx.drawImage(img, 0, 0);
 
+        // Carrega a fonte da marca (ou fallback)
+        const activeFontFamily = await loadFont(activeBrand);
+
+        // Desenhar overlay retangular com transparência
         ctx.fillStyle = activeBrand.primaryColor + 'CC'; 
         ctx.fillRect(img.width * 0.05, img.height - (img.height * 0.25), img.width * 0.9, img.height * 0.18);
 
+        // Desenhar texto usando a fonte carregada
         ctx.fillStyle = '#ffffff';
-        ctx.font = `bold ${Math.floor(img.width / 15)}px ${activeBrand.fontFamily}, sans-serif`;
+        ctx.font = `bold ${Math.floor(img.width / 15)}px "${activeFontFamily}", sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         
         const text = result.overlayText.toUpperCase();
         ctx.fillText(text, img.width / 2, img.height - (img.height * 0.16));
 
+        // Desenhar placeholder de logo/ícone da marca
         ctx.beginPath();
         ctx.arc(img.width * 0.1, img.height * 0.1, img.width * 0.05, 0, Math.PI * 2);
         ctx.fillStyle = activeBrand.secondaryColor;
@@ -97,19 +124,20 @@ const Generator: React.FC<GeneratorProps> = ({ brands }) => {
         const dataUrl = canvas.toDataURL('image/png');
         setFinalImage(dataUrl);
         
-        const newAsset: GeneratedAsset = {
-          id: Math.random().toString(36).substr(2, 9),
-          brandId: activeBrandId,
-          platform,
-          topic,
-          imageUrl: result.imageUrl,
-          textContent: result.caption,
-          finalOutputUrl: dataUrl,
-          status: 'completed',
-          createdAt: new Date().toISOString()
-        };
-        const saved = JSON.parse(localStorage.getItem('creative_ai_assets') || '[]');
-        localStorage.setItem('creative_ai_assets', JSON.stringify([newAsset, ...saved]));
+        // Salvar no Supabase
+        if (supabase) {
+          await supabase
+            .from('generated_assets')
+            .insert([{
+              brand_id: activeBrandId,
+              platform: platform,
+              topic: topic,
+              image_url: result.imageUrl,
+              text_content: result.caption,
+              final_output_url: dataUrl,
+              status: 'completed'
+            }]);
+        }
       };
     }
   }, [result, activeBrand]);

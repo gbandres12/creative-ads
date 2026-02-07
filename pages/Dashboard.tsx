@@ -1,19 +1,72 @@
 
 import React, { useState, useEffect } from 'react';
-import { GeneratedAsset } from '../types';
-import { Clock, Image as ImageIcon, CheckCircle, TrendingUp } from 'lucide-react';
+import { GeneratedAsset, Brand } from '../types';
+import { supabase } from '../supabaseClient';
+import { Clock, Image as ImageIcon, CheckCircle, TrendingUp, Loader2, Bookmark } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
-  const [assets, setAssets] = useState<GeneratedAsset[]>(() => {
-    const saved = localStorage.getItem('creative_ai_assets');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [assets, setAssets] = useState<GeneratedAsset[]>([]);
+  const [brandsCount, setBrandsCount] = useState<number>(0);
+  const [loading, setLoading] = useState(true);
+
+  const fetchDashboardData = async () => {
+    if (!supabase) return;
+    
+    setLoading(true);
+    try {
+      // Buscar ativos
+      const { data: assetData, error: assetError } = await supabase
+        .from('generated_assets')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      if (!assetError && assetData) {
+        setAssets(assetData.map(a => ({
+          id: a.id,
+          brandId: a.brand_id,
+          platform: a.platform,
+          topic: a.topic,
+          imageUrl: a.image_url,
+          textContent: a.text_content,
+          finalOutputUrl: a.final_output_url,
+          status: a.status,
+          createdAt: a.created_at
+        })));
+      }
+
+      // Buscar contagem de marcas
+      const { count, error: brandError } = await supabase
+        .from('brands')
+        .select('*', { count: 'exact', head: true });
+      
+      if (!brandError) {
+        setBrandsCount(count || 0);
+      }
+    } catch (err) {
+      console.error("Erro ao carregar dados do dashboard:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
 
   const stats = [
     { name: 'Total de Ativos', value: assets.length, icon: ImageIcon, color: 'bg-blue-600' },
-    { name: 'Marcas Ativas', value: '2', icon: CheckCircle, color: 'bg-green-600' },
-    { name: 'Taxa de Engajamento', value: '12.5%', icon: TrendingUp, color: 'bg-indigo-600' },
+    { name: 'Marcas Ativas', value: brandsCount, icon: Bookmark, color: 'bg-green-600' },
+    { name: 'Status do Sistema', value: 'Online', icon: CheckCircle, color: 'bg-indigo-600' },
   ];
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-64 space-y-4">
+        <Loader2 className="animate-spin text-indigo-500" size={32} />
+        <p className="text-slate-400">Carregando seus dados...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
@@ -63,7 +116,11 @@ const Dashboard: React.FC = () => {
             {assets.slice(0, 6).map((asset) => (
               <div key={asset.id} className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition-all group">
                 <div className="aspect-[4/3] bg-slate-800 relative overflow-hidden">
-                  <img src={asset.imageUrl} alt={asset.topic} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img 
+                    src={asset.finalOutputUrl || asset.imageUrl} 
+                    alt={asset.topic} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                  />
                   <div className="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-sm px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider text-slate-100 border border-slate-800">
                     {asset.platform}
                   </div>

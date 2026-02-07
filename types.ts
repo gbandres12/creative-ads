@@ -8,6 +8,7 @@ export interface Brand {
   secondaryColor: string;
   fontFamily: string;
   logoUrl?: string;
+  fontFileUrl?: string;
 }
 
 export interface GeneratedAsset {
