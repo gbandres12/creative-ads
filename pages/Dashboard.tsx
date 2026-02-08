@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { GeneratedAsset, Brand } from '../types';
+import { Link } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { Clock, Image as ImageIcon, CheckCircle, TrendingUp, Loader2, Bookmark } from 'lucide-react';
 
@@ -11,7 +12,7 @@ const Dashboard: React.FC = () => {
 
   const fetchDashboardData = async () => {
     if (!supabase) return;
-    
+
     setLoading(true);
     try {
       // Buscar ativos
@@ -19,7 +20,7 @@ const Dashboard: React.FC = () => {
         .from('generated_assets')
         .select('*')
         .order('created_at', { ascending: false });
-      
+
       if (!assetError && assetData) {
         setAssets(assetData.map(a => ({
           id: a.id,
@@ -38,7 +39,7 @@ const Dashboard: React.FC = () => {
       const { count, error: brandError } = await supabase
         .from('brands')
         .select('*', { count: 'exact', head: true });
-      
+
       if (!brandError) {
         setBrandsCount(count || 0);
       }
@@ -97,9 +98,9 @@ const Dashboard: React.FC = () => {
       <section className="space-y-4">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-slate-100">Criações Recentes</h2>
-          <button className="text-indigo-400 font-semibold text-sm hover:underline">Ver Tudo</button>
+          <Link to="/brands" className="text-indigo-400 font-semibold text-sm hover:underline">Ver Tudo</Link>
         </div>
-        
+
         {assets.length === 0 ? (
           <div className="bg-slate-900 rounded-2xl border border-dashed border-slate-800 p-12 text-center">
             <div className="w-16 h-16 bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -116,10 +117,10 @@ const Dashboard: React.FC = () => {
             {assets.slice(0, 6).map((asset) => (
               <div key={asset.id} className="bg-slate-900 rounded-2xl border border-slate-800 overflow-hidden shadow-sm hover:shadow-md transition-all group">
                 <div className="aspect-[4/3] bg-slate-800 relative overflow-hidden">
-                  <img 
-                    src={asset.finalOutputUrl || asset.imageUrl} 
-                    alt={asset.topic} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                  <img
+                    src={asset.finalOutputUrl || asset.imageUrl}
+                    alt={asset.topic}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute top-3 right-3 bg-slate-950/80 backdrop-blur-sm px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider text-slate-100 border border-slate-800">
                     {asset.platform}

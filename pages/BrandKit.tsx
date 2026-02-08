@@ -41,7 +41,10 @@ const BrandKit: React.FC<BrandKitProps> = ({ brands, onUpdate }) => {
       const { data: { publicUrl } } = supabase.storage.from('brand-assets').getPublicUrl(filePath);
       setFormData(prev => ({ ...prev, logoUrl: publicUrl }));
     } catch (error: any) {
-      alert('Erro ao fazer upload do logo: ' + error.message);
+      const msg = error.message === 'Bucket not found'
+        ? 'Bucket "brand-assets" não encontrado no Supabase. Crie este bucket no console do Supabase (Storage > New Bucket > brand-assets) com acesso público.'
+        : error.message;
+      alert('Erro ao fazer upload do logo: ' + msg);
     } finally {
       setUploadingLogo(false);
     }
@@ -61,7 +64,10 @@ const BrandKit: React.FC<BrandKitProps> = ({ brands, onUpdate }) => {
       const { data: { publicUrl } } = supabase.storage.from('brand-assets').getPublicUrl(filePath);
       setFormData(prev => ({ ...prev, fontFileUrl: publicUrl }));
     } catch (error: any) {
-      alert('Erro ao fazer upload da fonte: ' + error.message);
+      const msg = error.message === 'Bucket not found'
+        ? 'Bucket "brand-assets" não encontrado no Supabase. Crie este bucket no console do Supabase (Storage > New Bucket > brand-assets) com acesso público.'
+        : error.message;
+      alert('Erro ao fazer upload da fonte: ' + msg);
     } finally {
       setUploadingFont(false);
     }
@@ -124,7 +130,7 @@ const BrandKit: React.FC<BrandKitProps> = ({ brands, onUpdate }) => {
           <p className="text-slate-400 mt-2">Defina sua identidade de marca para garantir consistência na IA.</p>
         </div>
         {!isAdding && !editingBrand && (
-          <button 
+          <button
             onClick={() => { resetForm(); setIsAdding(true); }}
             className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-semibold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-500/20"
           >
@@ -140,7 +146,7 @@ const BrandKit: React.FC<BrandKitProps> = ({ brands, onUpdate }) => {
           <form onSubmit={handleSave} className="space-y-6">
             <div className="flex gap-6 justify-center">
               <div className="flex flex-col items-center">
-                <div 
+                <div
                   className="w-24 h-24 bg-slate-950 border-2 border-dashed border-slate-800 rounded-2xl flex items-center justify-center relative overflow-hidden group cursor-pointer"
                   onClick={() => logoInputRef.current?.click()}
                 >
@@ -160,7 +166,7 @@ const BrandKit: React.FC<BrandKitProps> = ({ brands, onUpdate }) => {
               </div>
 
               <div className="flex flex-col items-center">
-                <div 
+                <div
                   className="w-24 h-24 bg-slate-950 border-2 border-dashed border-slate-800 rounded-2xl flex items-center justify-center relative overflow-hidden group cursor-pointer"
                   onClick={() => fontInputRef.current?.click()}
                 >
@@ -185,11 +191,11 @@ const BrandKit: React.FC<BrandKitProps> = ({ brands, onUpdate }) => {
 
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1">Nome da Marca</label>
-              <input 
+              <input
                 type="text" required
                 className="w-full bg-slate-950 px-4 py-2 border border-slate-800 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-slate-100"
                 value={formData.name}
-                onChange={e => setFormData({...formData, name: e.target.value})}
+                onChange={e => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Ex: Acme Studio"
               />
             </div>
@@ -198,25 +204,25 @@ const BrandKit: React.FC<BrandKitProps> = ({ brands, onUpdate }) => {
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">Cor Primária</label>
                 <div className="flex gap-2">
-                  <input type="color" className="h-10 w-12 bg-slate-950 border border-slate-800 rounded p-1 cursor-pointer" value={formData.primaryColor} onChange={e => setFormData({...formData, primaryColor: e.target.value})} />
-                  <input type="text" className="flex-1 bg-slate-950 px-4 py-2 border border-slate-800 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none uppercase text-slate-100" value={formData.primaryColor} onChange={e => setFormData({...formData, primaryColor: e.target.value})} />
+                  <input type="color" className="h-10 w-12 bg-slate-950 border border-slate-800 rounded p-1 cursor-pointer" value={formData.primaryColor} onChange={e => setFormData({ ...formData, primaryColor: e.target.value })} />
+                  <input type="text" className="flex-1 bg-slate-950 px-4 py-2 border border-slate-800 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none uppercase text-slate-100" value={formData.primaryColor} onChange={e => setFormData({ ...formData, primaryColor: e.target.value })} />
                 </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-1">Cor Secundária</label>
                 <div className="flex gap-2">
-                  <input type="color" className="h-10 w-12 bg-slate-950 border border-slate-800 rounded p-1 cursor-pointer" value={formData.secondaryColor} onChange={e => setFormData({...formData, secondaryColor: e.target.value})} />
-                  <input type="text" className="flex-1 bg-slate-950 px-4 py-2 border border-slate-800 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none uppercase text-slate-100" value={formData.secondaryColor} onChange={e => setFormData({...formData, secondaryColor: e.target.value})} />
+                  <input type="color" className="h-10 w-12 bg-slate-950 border border-slate-800 rounded p-1 cursor-pointer" value={formData.secondaryColor} onChange={e => setFormData({ ...formData, secondaryColor: e.target.value })} />
+                  <input type="text" className="flex-1 bg-slate-950 px-4 py-2 border border-slate-800 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none uppercase text-slate-100" value={formData.secondaryColor} onChange={e => setFormData({ ...formData, secondaryColor: e.target.value })} />
                 </div>
               </div>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1">Nome da Família (Fallback)</label>
-              <select 
+              <select
                 className="w-full bg-slate-950 px-4 py-2 border border-slate-800 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-slate-100"
                 value={formData.fontFamily}
-                onChange={e => setFormData({...formData, fontFamily: e.target.value})}
+                onChange={e => setFormData({ ...formData, fontFamily: e.target.value })}
               >
                 <option value="Inter">Inter (Sans-serif)</option>
                 <option value="Montserrat">Montserrat (Modern)</option>

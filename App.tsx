@@ -43,8 +43,8 @@ const Sidebar = ({ isOpen, toggle }: { isOpen: boolean, toggle: () => void }) =>
                   to={item.path}
                   onClick={() => window.innerWidth < 768 && toggle()}
                   className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors font-medium ${isActive
-                      ? 'bg-indigo-600/10 text-indigo-400'
-                      : 'text-slate-400 hover:bg-slate-800 hover:text-indigo-400'
+                    ? 'bg-indigo-600/10 text-indigo-400'
+                    : 'text-slate-400 hover:bg-slate-800 hover:text-indigo-400'
                     }`}
                 >
                   <Icon size={20} />
@@ -55,7 +55,10 @@ const Sidebar = ({ isOpen, toggle }: { isOpen: boolean, toggle: () => void }) =>
           </nav>
 
           <div className="mt-auto pt-6 border-t border-slate-800">
-            <button className="flex items-center gap-3 w-full px-4 py-3 text-slate-400 hover:bg-red-500/10 hover:text-red-400 rounded-lg transition-colors font-medium">
+            <button
+              onClick={() => window.location.reload()}
+              className="flex items-center gap-3 w-full px-4 py-3 text-slate-400 hover:bg-red-500/10 hover:text-red-400 rounded-lg transition-colors font-medium"
+            >
               <LogOut size={20} />
               Sair
             </button>
