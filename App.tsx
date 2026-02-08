@@ -10,7 +10,7 @@ import { LayoutDashboard, Palette, Zap, Menu, X, LogOut, AlertTriangle, External
 
 const Sidebar = ({ isOpen, toggle }: { isOpen: boolean, toggle: () => void }) => {
   const location = useLocation();
-  
+
   const navItems = [
     { name: 'Painel', path: '/', icon: LayoutDashboard },
     { name: 'Identidade Visual', path: '/brands', icon: Palette },
@@ -20,19 +20,19 @@ const Sidebar = ({ isOpen, toggle }: { isOpen: boolean, toggle: () => void }) =>
   return (
     <>
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-60 z-20 md:hidden"
           onClick={toggle}
         />
       )}
-      
+
       <aside className={`fixed inset-y-0 left-0 bg-slate-900 border-r border-slate-800 w-64 transform transition-transform duration-300 ease-in-out z-30 md:relative md:translate-x-0 ${isOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <div className="p-6 flex flex-col h-full">
           <div className="flex items-center gap-3 mb-10">
             <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">C</div>
             <h1 className="text-xl font-bold text-slate-100 tracking-tight">CreativeAI</h1>
           </div>
-          
+
           <nav className="flex-1 space-y-2">
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -42,11 +42,10 @@ const Sidebar = ({ isOpen, toggle }: { isOpen: boolean, toggle: () => void }) =>
                   key={item.path}
                   to={item.path}
                   onClick={() => window.innerWidth < 768 && toggle()}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors font-medium ${
-                    isActive 
-                      ? 'bg-indigo-600/10 text-indigo-400' 
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors font-medium ${isActive
+                      ? 'bg-indigo-600/10 text-indigo-400'
                       : 'text-slate-400 hover:bg-slate-800 hover:text-indigo-400'
-                  }`}
+                    }`}
                 >
                   <Icon size={20} />
                   {item.name}
@@ -54,7 +53,7 @@ const Sidebar = ({ isOpen, toggle }: { isOpen: boolean, toggle: () => void }) =>
               );
             })}
           </nav>
-          
+
           <div className="mt-auto pt-6 border-t border-slate-800">
             <button className="flex items-center gap-3 w-full px-4 py-3 text-slate-400 hover:bg-red-500/10 hover:text-red-400 rounded-lg transition-colors font-medium">
               <LogOut size={20} />
@@ -91,11 +90,11 @@ const SetupWarning = () => (
       </div>
       <div className="space-y-4">
         <p className="text-sm text-slate-500">
-          Encontre-as em <span className="text-slate-300 font-medium">Project Settings > API</span> no seu painel do Supabase.
+          Encontre-as em <span className="text-slate-300 font-medium">Project Settings &gt; API</span> no seu painel do Supabase.
         </p>
-        <a 
-          href="https://supabase.com/dashboard" 
-          target="_blank" 
+        <a
+          href="https://supabase.com/dashboard"
+          target="_blank"
           className="flex items-center justify-center gap-2 w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-indigo-500/20"
         >
           Ir para o Supabase <ExternalLink size={16} />
@@ -120,7 +119,7 @@ const App: React.FC = () => {
       const { data, error } = await supabase
         .from('brands')
         .select('*');
-      
+
       if (!error && data) {
         setBrands(data.map(b => ({
           id: b.id,
@@ -160,7 +159,7 @@ const App: React.FC = () => {
     <HashRouter>
       <div className="flex h-screen overflow-hidden bg-slate-950 text-slate-100">
         <Sidebar isOpen={sidebarOpen} toggle={toggleSidebar} />
-        
+
         <main className="flex-1 flex flex-col min-w-0 overflow-y-auto">
           <header className="sticky top-0 z-10 bg-slate-900 border-b border-slate-800 px-6 py-4 flex items-center justify-between md:hidden">
             <div className="flex items-center gap-2">
@@ -171,7 +170,7 @@ const App: React.FC = () => {
               {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
           </header>
-          
+
           <div className="p-6 md:p-10 max-w-7xl mx-auto w-full">
             <Routes>
               <Route path="/" element={<Dashboard />} />
